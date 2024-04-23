@@ -4,15 +4,19 @@ const button = document.getElementById('analyze');
 const predictions = document.getElementById('predictions');
 const loader = document.getElementById('loader');
 
-const threshold = 0.9;
+const threshold = 0.8;
 
 
 async function toxicidad(texto) {
-    
+    try {
     const model = await toxicity.load(threshold);
     const predictions = await model.classify(texto);
     console.log(predictions);
     return predictions;
+        
+    } catch (error) {
+        return error;
+    };
 
 };
 
@@ -24,11 +28,22 @@ button.addEventListener('click', async () => {
     predictions.innerHTML = '';
     button.disabled = true;
     button.textContent = 'Analizando...';
-    loader.innerHTML = '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>';
 
     const texto = text.value;
-    const predicciones = await toxicidad(texto);
-    console.log(predicciones);
+    const textArray = texto.split(',');
+    console.log(textArray);
+    const predicciones = await toxicidad(textArray);
+    if (predicciones instanceof Error) {
+        predictions.innerHTML = `
+        <div class="alert alert-danger" role="alert">
+            ${predicciones.message}
+        </div>
+        `;
+        button.disabled = false;
+        button.textContent = 'Analizar';
+        return;
+    };
+    
     loader.innerHTML = '';
     button.disabled = false;
     button.textContent = 'Analizar';
