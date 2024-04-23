@@ -1,4 +1,3 @@
-// modelo de toxicidad TFjs
 const text = document.getElementById('text');
 const button = document.getElementById('analyze');
 const predictions = document.getElementById('predictions');
@@ -7,18 +6,37 @@ const loader = document.getElementById('loader');
 const threshold = 0.8;
 
 
+// async function toxicidad(texto) {
+//     try {
+//     const model = await toxicity.load(threshold);
+//     const predictions = await model.classify(texto);
+//     console.log(predictions);
+//     return predictions;
+        
+//     } catch (error) {
+//         return error;
+//     };
+
+// };
+
+
 async function toxicidad(texto) {
     try {
-    const model = await toxicity.load(threshold);
-    const predictions = await model.classify(texto);
-    console.log(predictions);
-    return predictions;
+        const res = await fetch('http://localhost:3000/toxicity', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ texto, threshold })
+        });
+        const data = await res.json();
+        return data;
         
     } catch (error) {
+        console.log(error);
         return error;
-    };
-
-};
+    }
+}
 
 button.addEventListener('click', async () => {
     if (!text.value) {
@@ -28,7 +46,6 @@ button.addEventListener('click', async () => {
     predictions.innerHTML = '';
     button.disabled = true;
     button.textContent = 'Analizando...';
-
     const texto = text.value;
     const textArray = texto.split(',');
     console.log(textArray);
